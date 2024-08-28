@@ -9,7 +9,7 @@ using IpiWebApi.Models;
 
 namespace IpiWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/TodoItemsDTO")]
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
@@ -22,14 +22,14 @@ namespace IpiWebApi.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
+        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
-            return await _context.TodoItems.ToListAsync();
+            return await _context.TodoItems.Select(t => t.ToDTO()).ToListAsync();
         }
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
+        public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
         {
             var todoItem = await _context.TodoItems.FindAsync(id);
 
@@ -38,20 +38,20 @@ namespace IpiWebApi.Controllers
                 return NotFound();
             }
 
-            return todoItem;
+            return todoItem.ToDTO();
         }
 
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+        public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoItem)
         {
             if (id != todoItem.Id)
             {
                 return BadRequest();
             }
-
-            _context.Entry(todoItem).State = EntityState.Modified;
+            var todoItemModel = todoItem.ToModel();
+            _context.Entry(todoItemModel).State = EntityState.Modified;
 
             try
             {
@@ -75,9 +75,10 @@ namespace IpiWebApi.Controllers
         // POST: api/TodoItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
+        public async Task<ActionResult<TodoItemDTO>> PostTodoItem(TodoItemDTO todoItem)
         {
-            _context.TodoItems.Add(todoItem);
+            var todoItemModel = todoItem.ToModel();
+            _context.TodoItems.Add(todoItemModel);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
