@@ -9,7 +9,7 @@ using IpiWebApi.Models;
 
 namespace IpiWebApi.Controllers
 {
-    [Route("api/TodoItemsDTO")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
